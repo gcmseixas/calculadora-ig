@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Idade Gestacional - PEC e-SUS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #cbdceb;
+            color: #333;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            text-align: center;
+            padding: 20px;
+        }
+        section {
+            max-width: 800px;
+	    min-width: 55%;
+            margin: auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            font-size: 18px;
+            line-height: 1.5;
+	    transition: 0.2s;
+        }
+	section:hover {
+	    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+	}
+        details {
+            margin-bottom: 15px;
+            border: 1px solid #d1d9e0;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        summary {
+            padding: 15px 20px;
+            background-color: #f8fbfe;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #2c3e50;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        summary::after {
+            content: "▼";
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+            color: #3498db;
+        }
+        details[open] summary::after {
+            transform: rotate(180deg);
+        }
+
+        /* Formatação dos itens internos */
+        .conteudo-internos {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        input {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+        .botoes-container {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            flex: 1;
+            transition: opacity 0.2s;
+        }
+        .btn-calc { background-color: #3498db; color: white; }
+        .btn-limpar { background-color: #95a5a6; color: white; }
+        button:hover { opacity: 0.9; }
+
+        .resultado-box {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f0f7fd;
+            border-left: 5px solid #3498db;
+            white-space: pre-line; /* Mantém as quebras de linha do texto */
+            font-family: monospace;
+            font-size: 0.95rem;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #556a7e;
+            margin-top: 30px;
+        }
+
+	img {
+	    width: 400px;
+	    padding: 5px 40px;
+	    display: center;
+	}
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Calculadora de Idade Gestacional</h1>
+    </header>
+
+    <section>
+        <h2>Escolha o método</h2>
+
+        <details id="detDUM">
+            <summary>Data da Última Menstruação</summary>
+            <div class="conteudo-internos">
+                <label for="DUM">Informe a DUM:</label>
+                <input type="date" id="DUM">
+                <div class="botoes-container">
+                    <button class="btn-calc" onclick="calcularDUM()">Calcular</button>
+                    <button class="btn-limpar" onclick="limpar('DUM')">Limpar</button>
+                </div>
+                <div id="resDUM" class="resultado-box" style="display: none;"></div>
+            </div>
+        </details>
+
+        <details id="detECO">
+            <summary>Data de Ecografia Prévia</summary>
+            <div class="conteudo-internos">
+                <label for="dataEco">Data da Ecografia:</label>
+                <input type="date" id="dataEco">
+                <label for="semanasEco">Semanas no dia do exame:</label>
+                <input type="number" id="semanasEco" placeholder="Ex: 12">
+                <label for="diasEco">Dias no dia do exame:</label>
+                <input type="number" id="diasEco" placeholder="Ex: 3">
+                <div class="botoes-container">
+                    <button class="btn-calc" onclick="calcularECO()">Calcular</button>
+                    <button class="btn-limpar" onclick="limpar('ECO')">Limpar</button>
+                </div>
+                <div id="resECO" class="resultado-box" style="display: none;"></div>
+            </div>
+        </details>
+
+	<h2>Trimestres gestacionais</h2>
+	<details>
+	    <summary>Tabela</summary>
+		<img src="img\TRIMESTRES GESTACIONAIS.jpg">
+	</details>
+
+    </section>
+
+    <footer>
+        <p>Desenvolvido por Gabriel Cordeiro de Mello Seixas (2026)</p>
+    </footer>
+
+    <script>
+        // Função auxiliar para formatar datas (DD/MM/AAAA)
+        function formatarDataBR(data) {
+            return data.toLocaleDateString('pt-BR');
+        }
+
+        // Função para formatar a IG (Semanas e Dias)
+        function formatarIG(totalDias) {
+            const sem = Math.floor(totalDias / 7);
+            const dias = totalDias % 7;
+            return `${sem}s ${dias}d`;
+        }
+
+        function calcularDUM() {
+            const dumInput = document.getElementById('DUM').value;
+            if (!dumInput) return alert("Insira a DUM");
+
+            const hoje = new Date();
+            const dataDum = new Date(dumInput + 'T00:00:00'); // Garante fuso horário local
+            
+            const diffDias = Math.floor((hoje - dataDum) / (1000 * 60 * 60 * 24));
+            const dpp = new Date(dataDum);
+            dpp.setDate(dpp.getDate() + 280);
+
+            const resultado = `DUM: ${formatarDataBR(dataDum)}\nDPP: ${formatarDataBR(dpp)}\nIG HOJE: ${formatarIG(diffDias)} (A)`;
+            
+            exibirResultado('resDUM', resultado);
+        }
+
+        function calcularECO() {
+            const dataEco = document.getElementById('dataEco').value;
+            const semEco = parseInt(document.getElementById('semanasEco').value) || 0;
+            const diasEco = parseInt(document.getElementById('diasEco').value) || 0;
+
+            if (!dataEco) { return alert("Insira a data do exame");
+	    } else if (!semEco)  { return alert("Insira o resultado do exame")};
+
+            const hoje = new Date();
+            const dataExame = new Date(dataEco + 'T00:00:00');
+            
+            const diasDesdeExame = Math.floor((hoje - dataExame) / (1000 * 60 * 60 * 24));
+            const totalDiasNoExame = (semEco * 7) + diasEco;
+            const igAtual = totalDiasNoExame + diasDesdeExame;
+
+            // Para DPP por ECO: Subtraímos a idade do exame de 280 para saber quantos dias faltam
+            const dpp = new Date(dataExame);
+            dpp.setDate(dpp.getDate() + (280 - totalDiasNoExame));
+
+            const resultado = `DPP (E): ${formatarDataBR(dpp)}\nIG HOJE: ${formatarIG(igAtual)} (E)`;
+            
+            exibirResultado('resECO', resultado);
+        }
+
+        function exibirResultado(id, texto) {
+            const div = document.getElementById(id);
+            div.innerText = texto;
+            div.style.display = 'block';
+        }
+
+        function limpar(tipo) {
+            if (tipo === 'DUM') {
+                document.getElementById('DUM').value = '';
+                document.getElementById('resDUM').style.display = 'none';
+            } else {
+                document.getElementById('dataEco').value = '';
+                document.getElementById('semanasEco').value = '';
+                document.getElementById('diasEco').value = '';
+                document.getElementById('resECO').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
