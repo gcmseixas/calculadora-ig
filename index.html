@@ -122,6 +122,17 @@
 	    padding: 5px 40px;
 	    display: center;
 	}
+
+    button {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
     </style>
 </head>
 
@@ -199,7 +210,7 @@
             const dpp = new Date(dataDum);
             dpp.setDate(dpp.getDate() + 280);
 
-            const resultado = `DUM: ${formatarDataBR(dataDum)}\nDPP: ${formatarDataBR(dpp)}\nIG HOJE: ${formatarIG(diffDias)} (A)`;
+            const resultado = `DUM: ${formatarDataBR(dataDum)}\nDPP: ${formatarDataBR(dpp)}\nIG HOJE: ${formatarIG(diffDias)} (A)\n\n`;
             
             exibirResultado('resDUM', resultado);
         }
@@ -210,7 +221,7 @@
             const diasEco = parseInt(document.getElementById('diasEco').value) || 0;
 
             if (!dataEco) { return alert("Insira a data do exame");
-	    } else if (!semEco)  { return alert("Insira o resultado do exame")};
+	        } else if (!semEco)  { return alert("Insira o resultado do exame")};
 
             const hoje = new Date();
             const dataExame = new Date(dataEco + 'T00:00:00');
@@ -223,7 +234,7 @@
             const dpp = new Date(dataExame);
             dpp.setDate(dpp.getDate() + (280 - totalDiasNoExame));
 
-            const resultado = `DPP (E): ${formatarDataBR(dpp)}\nIG HOJE: ${formatarIG(igAtual)} (E)`;
+            const resultado = `DPP (E): ${formatarDataBR(dpp)}\nIG HOJE: ${formatarIG(igAtual)} (E)\n\n`;
             
             exibirResultado('resECO', resultado);
         }
@@ -232,6 +243,32 @@
             const div = document.getElementById(id);
             div.innerText = texto;
             div.style.display = 'block';
+
+            // Adiciona o botão de Copiar Texto para a área de transferência
+            const botaoCopiar = document.createElement('button');
+            botaoCopiar.innerText = 'Copiar Texto';
+            botaoCopiar.onclick = () => {
+                navigator.clipboard.writeText(texto);
+                // Adiciona um card na parte inferior da tela informando que o resultado foi copiado
+                const card = document.createElement('div');
+                card.innerText = 'Resultado copiado para a área de transferência!';
+                card.style.position = 'fixed';
+                card.style.bottom = '10px';
+                card.style.left = '10px';
+                card.style.backgroundColor = '#3498db';
+                card.style.color = 'white';
+                card.style.padding = '10px';
+                card.style.borderRadius = '5px';
+                card.style.zIndex = '1000';
+                document.body.appendChild(card);
+
+                // Remove o card após 3 segundos
+                setTimeout(() => {
+                    document.body.removeChild(card);
+                }, 3000);
+            };
+            div.appendChild(botaoCopiar);
+
         }
 
         function limpar(tipo) {
